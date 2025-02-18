@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Style Testing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #e4d7d7;
+            border-radius: 10px;
+        }
+        button{
+            width: 30%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #cad4c4;
+            border-radius: 5px;
+        }
+        input, select {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #fcadad;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .action-buttons button {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Search -->
+        <h2>Search Product by Style</h2>
+        <input type="text" id="searchStyle" placeholder="Search by style..." oninput="searchProduct()">
+
+        <h2>Create New Style</h2>       
+        <!-- Create -->
+        <button onclick="window.location.href = 'create.html'" style="background-color: rgb(69, 187, 69);">Create</button>
+
+        <!-- Result -->
+        <h2>Style & Price List</h2>
+        <table id="productTable">
+            <thead>
+                <tr>
+                    <th>Style</th>
+                    <th>Color</th>
+                    <th>Size</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- fill it -->
+            </tbody>
+        </table>
+    </div>
+
+        <script>
+            // Load products from Local Storage
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+    
+            // Display Products in the Table
+            function displayProducts(productList) {
+                const tableBody = document.querySelector('#productTable tbody');
+                tableBody.innerHTML = '';
+    
+                productList.forEach((product, index) => {
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${product.style}</td>
+                        <td>${product.color}</td>
+                        <td>${product.size}</td>
+                        <td>$${product.price}</td>
+                        <td class="action-buttons">
+                            <button onclick="editProduct(${index})" style="background-color: rgb(137, 137, 230);">Edit</button>
+                            <button onclick="deleteProduct(${index})" style="background-color:  rgb(223, 51, 51);">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(newRow);
+                });
+            }
+    
+            // Edit 
+            function editProduct(index) {
+                localStorage.setItem('editIndex', index); // For edit
+                window.location.href = 'edit.html'; // to Edit Page
+            }
+    
+            // Delete
+            function deleteProduct(index) {
+                if (confirm('Are you sure you want to delete this product?')) {
+                    products.splice(index, 1); 
+                    localStorage.setItem('products', JSON.stringify(products)); 
+                    displayProducts(products);
+                }
+            }
+    
+            // Search by Style
+            function searchProduct() {
+                const searchTerm = document.getElementById('searchStyle').value.toLowerCase();
+                const filteredProducts = products.filter(product => 
+                    product.style.toLowerCase().includes(searchTerm)
+                );
+                displayProducts(filteredProducts);
+            }
+
+            displayProducts(products);
+        </script>
+    </body>
+    </html>    
