@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Style</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #e7bdbd;
+            border-radius: 10px;
+        }
+        button{
+            background-color: rgb(190, 179, 201);
+        }
+        input, select, button {
+            width: 450px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #e9afaf;
+            border-radius: 5px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        .button-group button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Style</h1>
+        
+        <!-- Form for Editing -->
+        <input type="text" id="style" placeholder="Style">
+        <select id="color" onchange="toggleNewOption('color')">
+            <option value="">Choose</option>
+            <option value="new">Add New Color</option>
+           
+       </select>
+         <div id="newColorSection" class="new-option">
+            <input type="text" id="newColor" placeholder="Add New Color">
+            <button onclick="addNewOption('color')">Add Color</button>
+        </div>
+      
+        <select id="size" onchange="toggleNewOption('size')">
+            <option value selected>Choose</option>
+            <option value="new">Add New Size</option>            
+          
+        </select>
+        <div id="newSizeSection" class="new-option">
+            <input type="text" id="newSize" placeholder="Add New Size">
+            <button onclick="addNewOption('size')">Add Size</button>
+        </div>
+
+        <input type="number" id="price" placeholder="Price">
+
+        <!-- Update and Cancel Buttons -->
+        <div class="button-group">
+            <button onclick="updateProduct()">Update</button>
+            <button onclick="cancelEdit()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Load existing colors and sizes from Local Storage
+        let colors = JSON.parse(localStorage.getItem('colors')) || [];
+        let sizes = JSON.parse(localStorage.getItem('sizes')) || [];
+
+        // Load the product to edit
+        const editIndex = localStorage.getItem('editIndex');
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        const product = products[editIndex];
+
+        // Populate the form with the data
+        document.getElementById('style').value = product.style;
+        document.getElementById('price').value = product.price;
+
+        // Populate Color and Size dropdowns
+        const colorSelect = document.getElementById('color');
+        const sizeSelect = document.getElementById('size');
+
+        colors.forEach(color => {
+            const option = document.createElement('option');
+            option.value = color;
+            option.textContent = color;
+            colorSelect.appendChild(option);
+        });
+
+        sizes.forEach(size => {
+            const option = document.createElement('option');
+            option.value = size;
+            option.textContent = size;
+            sizeSelect.appendChild(option);
+        });
+
+        // Set the selected color and size
+        colorSelect.value = product.color;
+        sizeSelect.value = product.size;
+
+        // Show/Hide New Option Input Field
+        function toggleNewOption(type) {
+            const newSection = document.getElementById(`new${type.charAt(0).toUpperCase() + type.slice(1)}Section`);
+            const selectElement = document.getElementById(type);
+            if (selectElement.value === "new") {
+                newSection.style.display = 'block';
+            } else {
+                newSection.style.display = 'none';
+            }
+        }
+
+        // Add New Option (Color or Size)
+        function addNewOption(type) {
+            const newInput = document.getElementById(`new${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            const newValue = newInput.value.trim();
+
+            if (newValue) {
+                const selectElement = document.getElementById(type);
+                const option = document.createElement('option');
+                option.value = newValue;
+                option.textContent = newValue;
+                selectElement.appendChild(option);
+
+                // Save to Local Storage
+                if (type === 'color') {
+                    colors.push(newValue);
+                    localStorage.setItem('colors', JSON.stringify(colors));
+                } else if (type === 'size') {
+                    sizes.push(newValue);
+                    localStorage.setItem('sizes', JSON.stringify(sizes));
+                }
+
+           
+                newInput.value = '';
+                document.getElementById(`new${type.charAt(0).toUpperCase() + type.slice(1)}Section`).style.display = 'none';
+            } else {
+                alert(`Please enter a new ${type}`);
+            }
+        }
+
+        // Update 
+        function updateProduct() {
+            const style = document.getElementById('style').value;
+            const color = document.getElementById('color').value;
+            const size = document.getElementById('size').value;
+            const price = document.getElementById('price').value;
+
+            if (style && color && size && price) {
+                const updatedProduct = { style, color, size, price };
+                products[editIndex] = updatedProduct; // Update the product in the array
+                localStorage.setItem('products', JSON.stringify(products)); // Update Local Storage
+                window.location.href = 'index.html'; // Redirect to Main Page
+            } else {
+                alert('Please fill all fields');
+            }
+        }
+
+        // Cancel Edit
+        function cancelEdit() {
+            window.location.href = 'style.html'; // Redirect to Main Page without saving changes
+        }
+    </script>
+</body>
+</html>

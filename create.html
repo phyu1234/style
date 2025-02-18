@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Style Product</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #e7bdbd;
+            border-radius: 10px;
+        }
+        button{
+            background-color: rgb(190, 179, 201);
+        }
+        input, select, button {
+            width: 450px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #e9afaf;
+            border-radius: 5px;
+        }
+        .new-option {
+            display: none;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create New Style</h1>
+        
+        <!-- Form for Adding  -->
+        <label for="style">Style</label><br>
+        <input type="text" id="style" name="style" required>
+        <br>
+        <!-- Color -->
+        <label for="color">Color</label><br>
+        <select id="color" onchange="toggleNewOption('color')">
+            <option value="">Choose</option>
+            <option value="new">Add New Color</option>
+            <!-- Colors will be dynamically added here -->
+       </select>
+         <div id="newColorSection" class="new-option">
+            <input type="text" id="newColor" placeholder="Add New Color">
+            <button onclick="addNewOption('color')">Add Color</button>
+        </div>
+        <br>
+        <!-- Size -->
+        <label for="size">Size</label><br>
+        <select id="size" onchange="toggleNewOption('size')">
+            <option value selected>Choose</option>
+            <option value="new">Add New Size</option>            
+            <!-- Sizes will be added here -->
+        </select>
+        <div id="newSizeSection" class="new-option">
+            <input type="text" id="newSize" placeholder="Add New Size">
+            <button onclick="addNewOption('size')">Add Size</button>
+        </div>
+        <br>
+        <label for="price">Price</label><br>
+        <input type="number" id="price" name="price" required>
+        <br>
+        <button onclick="addProduct()">Submit</button>
+    </div>
+
+    <script>
+        // Load existing colors and sizes from Local Storage
+        let colors = JSON.parse(localStorage.getItem('colors')) || [];
+        let sizes = JSON.parse(localStorage.getItem('sizes')) || [];
+
+        // Populate Color and Size dropdowns
+        const colorSelect = document.getElementById('color');
+        const sizeSelect = document.getElementById('size');
+
+        colors.forEach(color => {
+            const option = document.createElement('option');
+            option.value = color;
+            option.textContent = color;
+            colorSelect.appendChild(option);
+        });
+
+        sizes.forEach(size => {
+            const option = document.createElement('option');
+            option.value = size;
+            option.textContent = size;
+            sizeSelect.appendChild(option);
+        });
+
+        // Show/Hide New Option Input Field
+        function toggleNewOption(type) {
+            const newSection = document.getElementById(`new${type.charAt(0).toUpperCase() + type.slice(1)}Section`);
+            const selectElement = document.getElementById(type);
+            if (selectElement.value === "new") {
+                newSection.style.display = 'block';
+            } else {
+                newSection.style.display = 'none';
+            }
+        }
+
+        // Add New Option (Color or Size)
+        function addNewOption(type) {
+            const newInput = document.getElementById(`new${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            const newValue = newInput.value.trim();
+
+            if (newValue) {
+                const selectElement = document.getElementById(type);
+                const option = document.createElement('option');
+                option.value = newValue;
+                option.textContent = newValue;
+                selectElement.appendChild(option);
+
+                // Save to Local Storage
+                if (type === 'color') {
+                    colors.push(newValue);
+                    localStorage.setItem('colors', JSON.stringify(colors));
+                } else if (type === 'size') {
+                    sizes.push(newValue);
+                    localStorage.setItem('sizes', JSON.stringify(sizes));
+                }
+
+                // Clear Input and Hide Section
+                newInput.value = '';
+                document.getElementById(`new${type.charAt(0).toUpperCase() + type.slice(1)}Section`).style.display = 'none';
+            } else {
+                alert(`Please enter a new ${type}`);
+            }
+        }
+
+        // Add  to Local Storage
+        function addProduct() {
+            const style = document.getElementById('style').value;
+            const color = document.getElementById('color').value;
+            const size = document.getElementById('size').value;
+            const price = document.getElementById('price').value;
+
+            if (style && color && size && price) {
+                const product = { style, color, size, price };
+                let products = JSON.parse(localStorage.getItem('products')) || [];
+                products.push(product);
+                localStorage.setItem('products', JSON.stringify(products));
+
+                // to Main Page
+                window.location.href = 'style.html';
+            } else {
+                alert('Please fill all fields');
+            }
+        }
+    </script>
+</body>
+</html>
